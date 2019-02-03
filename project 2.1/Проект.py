@@ -94,6 +94,8 @@ board = Board(6, 9)
 board.set_view(10, 5, 50)
 screen.fill((71, 37, 0))
 
+points = 0
+
 pygame.draw.rect(screen, (124, 252, 0), (10, 5, w-20, h-60), 0)
 pygame.draw.rect(screen, (87, 145, 12), (10, 355, w-20, h-110), 0)
 
@@ -236,12 +238,14 @@ while running:
                            (y + 40 < monster_y and y + 40 > monster_y + 50)):
                             if ((x > monster_x and x < monster_x + 50) and
                                (y > monster_y and y < monster_y + 50)):
+                                points += 1
                                 del monster_coords1[monster_coords1.index(j)]
                                 k_x = -k_x
                                 k_y = -k_y
                             elif ((x + 40 > monster_x and x + 40 <
                                   monster_x + 50) and
                                   (y > monster_y and y < monster_y + 50)):
+                                points += 1
                                 del monster_coords1[monster_coords1.index(j)]
                                 k_x = -k_x
                                 k_y = -k_y
@@ -249,12 +253,14 @@ while running:
                                   monster_x + 50) and
                                   (y + 40 > monster_y and y + 40 <
                                   monster_x + 50)):
+                                points += 1
                                 del monster_coords1[monster_coords1.index(j)]
                                 k_x = -k_x
                                 k_y = -k_y
                             elif ((x > monster_x and x < monster_x + 50) and
                                   (y + 40 > monster_y and y + 40 <
                                   monster_y + 50)):
+                                points += 1
                                 del monster_coords1[monster_coords1.index(j)]
                                 k_x = -k_x
                                 k_y = -k_y
@@ -380,10 +386,15 @@ while running:
                 gameover_x += 1
             else:
                 you_can_push = True
+            font = pygame.font.Font(None, 24)
+            text = font.render("Вы убили {} монстров.".format(points), 1, (255, 255, 255))
+            text_x = 60
+            text_y = 405               
             game_over.rect.x = gameover_x
             game_over.rect.y = 0
             game_over.add(game_over_group)
             game_over_group.draw(screen)
+            screen.blit(text, (text_x, text_y)) 
         if castle_xp > 0:
             font = pygame.font.Font(None, 24)
             text = font.render("{}xp".format(castle_xp), 1, (255, 255, 255))
