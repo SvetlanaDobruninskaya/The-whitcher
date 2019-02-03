@@ -387,14 +387,24 @@ while running:
             else:
                 you_can_push = True
             font = pygame.font.Font(None, 24)
-            text = font.render("Вы убили {} монстров.".format(points), 1, (255, 255, 255))
-            text_x = 60
-            text_y = 405               
+            file_name = os.path.join('Data', 'max_point.txt')
+            max_point = int(open(file_name, "r").read())            
+            if points > max_point:
+                max_point = points
+                file = open(file_name, "w")
+                file.write(str(max_point))
+                file.close()
+            end_text = ["Вы убили {} монстров.".format(points), "Ваш максимальный счет равен {}.".format(max_point)]
             game_over.rect.x = gameover_x
             game_over.rect.y = 0
             game_over.add(game_over_group)
-            game_over_group.draw(screen)
-            screen.blit(text, (text_x, text_y)) 
+            game_over_group.draw(screen)            
+            text_y = 405
+            for end in end_text:
+                text = font.render(end, 1, (255, 255, 255))
+                text_x = 35
+                text_y += 20       
+                screen.blit(text, (text_x, text_y))
         if castle_xp > 0:
             font = pygame.font.Font(None, 24)
             text = font.render("{}xp".format(castle_xp), 1, (255, 255, 255))
@@ -405,6 +415,7 @@ while running:
         else:
             gameover_flag = False
         if event.type == pygame.MOUSEBUTTONDOWN and you_can_push:
+            points = 0
             gameover_flag = True
             castle_xp = 10
             monster_coords = []
