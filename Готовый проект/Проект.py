@@ -85,6 +85,7 @@ class Board:
     def on_click(self, cell_coords):
         pass
 
+
 class monsters_actions:
     def __init__(self):
         pass
@@ -139,7 +140,7 @@ class monsters_actions:
             if x not in x_coords:
                 monster_coords.append([x, y, image])
         return monsters, monster_coords, castle_xp
-    
+
     def monster_fire_crash(monster_coords, points, k_x, k_y):
         monster_coords1 = monster_coords
         for j in monster_coords:
@@ -204,15 +205,15 @@ points = 0
 pygame.draw.rect(screen, (124, 252, 0), (10, 5, w-20, h-60), 0)
 pygame.draw.rect(screen, (87, 145, 12), (10, 355, w-20, h-110), 0)
 
-#music = False
+music = False
 # этот флаг отвечает за музыку.
 # Если хотите другую смените флаг на True
-#if music:
-    #pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
-    #pygame.mixer.music.play(-1)
-#elif not music:
-    #pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
-    #pygame.mixer.music.play(-1)
+if music:
+    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
+    pygame.mixer.music.play(-1)
+elif not music:
+    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
+    pygame.mixer.music.play(-1)
 
 castle = pygame.sprite.Group()
 castle1 = pygame.sprite.Sprite()
@@ -348,8 +349,11 @@ while running:
                         y = y + 1
                         k_y = 1
 
-                    monsters, monster_coords, points, k_x, k_y = monsters_actions.monster_fire_crash(monster_coords, points, k_x, k_y)
-                    
+                    monsters, monster_coords, points, k_x, k_y =\
+                    monsters_actions.monster_fire_crash(monster_coords,
+                                                        points,
+                                                        k_x, k_y)
+
                     x = x + (plus_x * k_x)
                     if int(y) != int(y + (plus_y * k_y)):
                         y = y + (plus_y * k_y)
@@ -399,9 +403,9 @@ while running:
                     flag_bdown = False
                     fire.rect.y = 4000
                     y = 4000
-                    monsters, monster_coords, castle_xp = monsters_actions.new_level(monster_coords, castle_xp)
+                    monsters, monster_coords, castle_xp =\
+                    monsters_actions.new_level(monster_coords, castle_xp)
                     have_nlevel = False
-            
 
             fires.draw(screen)
 
@@ -419,22 +423,23 @@ while running:
                 you_can_push = True
             font = pygame.font.Font(None, 24)
             file_name = os.path.join('Data', 'max_point.txt')
-            max_point = int(open(file_name, "r").read())            
+            max_point = int(open(file_name, "r").read())
             if points > max_point:
                 max_point = points
                 file = open(file_name, "w")
                 file.write(str(max_point))
                 file.close()
-            end_text = ["Вы убили {} монстров.".format(points), "Ваш максимальный счет равен {}.".format(max_point)]
+            end_text = ["Вы убили {} монстров.".format(points),
+                        "Ваш максимальный счет равен {}.".format(max_point)]
             game_over.rect.x = gameover_x
             game_over.rect.y = 0
             game_over.add(game_over_group)
-            game_over_group.draw(screen)            
+            game_over_group.draw(screen)
             text_y = 405
             for end in end_text:
                 text = font.render(end, 1, (255, 255, 255))
                 text_x = 35
-                text_y += 20       
+                text_y += 20
                 screen.blit(text, (text_x, text_y))
         if castle_xp > 0:
             font = pygame.font.Font(None, 24)
@@ -493,7 +498,7 @@ while running:
                         if x not in x_coords:
                             monster_coords.append([x, 5, "troll"])
                         x_coords.append(x)
-        
+
                     monsters = pygame.sprite.Group()
                     for i in monster_coords:
                         sprite = pygame.sprite.Sprite()
