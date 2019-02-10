@@ -85,6 +85,111 @@ class Board:
     def on_click(self, cell_coords):
         pass
 
+class monsters_actions:
+    def __init__(self):
+        pass
+
+    def new_level(monster_coords, castle_xp):
+        n = 0
+        coords_monsters1 = []
+        monsters = pygame.sprite.Group()
+        n1 = len(monster_coords)
+
+        while n != n1 and flag_inboard:  # перемещение монстров вперед
+            sprite = pygame.sprite.Sprite()
+            x, y, image = monster_coords[n]
+            if image == "troll":
+                sprite.image = load_image("troll.png")
+            elif image == "knight":
+                sprite.image = load_image("Knight.png")
+            sprite.rect = sprite.image.get_rect()
+            sprite.rect.x = x
+            y += 50
+            sprite.rect.y = y
+            sprite.add(monsters)
+            if y < 450:
+                coords_monsters1.append([x, y, image])
+            else:
+                if image == "troll":
+                    castle_xp += -1
+                elif image == "knight":
+                    castle_xp += -5
+            n += 1
+
+        new_monster_draw = True
+        monster_coords = coords_monsters1
+        coords_monsters1 = []
+        x_coords = []
+        for i in range(3):  # пририсовка нового монстра
+            image = random.choice(monster_choice)
+            y = 5
+            x = random.randrange(10, 310, 50)
+            sprite = pygame.sprite.Sprite()
+            if image == "troll":
+                sprite.image = load_image("troll.png")
+            elif image == "knight":
+                sprite.image = load_image("Knight.png")
+            elif image == "dragon":
+                sprite.image = load_image("Dragon.png")
+            sprite.rect = sprite.image.get_rect()
+            if x not in x_coords:
+                sprite.rect.x = x
+            sprite.rect.y = y
+            sprite.add(monsters)
+            if x not in x_coords:
+                monster_coords.append([x, y, image])
+        return monsters, monster_coords, castle_xp
+    
+    def monster_fire_crash(monster_coords, points, k_x, k_y):
+        monster_coords1 = monster_coords
+        for j in monster_coords:
+            monster_x, monster_y, image = j
+            if ((y > monster_y and y < monster_y + 50) or
+               (y + 40 < monster_y and y + 40 > monster_y + 50)):
+                if ((x > monster_x and x < monster_x + 50) and
+                   (y > monster_y and y < monster_y + 50)):
+                    points += 1
+                    del monster_coords1[monster_coords1.index(j)]
+                    k_x = -k_x
+                    k_y = -k_y
+                elif ((x + 40 > monster_x and x + 40 <
+                      monster_x + 50) and
+                      (y > monster_y and y < monster_y + 50)):
+                    points += 1
+                    del monster_coords1[monster_coords1.index(j)]
+                    k_x = -k_x
+                    k_y = -k_y
+                elif ((x + 40 > monster_x and x + 40 <
+                      monster_x + 50) and
+                      (y + 40 > monster_y and y + 40 <
+                      monster_x + 50)):
+                    points += 1
+                    del monster_coords1[monster_coords1.index(j)]
+                    k_x = -k_x
+                    k_y = -k_y
+                elif ((x > monster_x and x < monster_x + 50) and
+                      (y + 40 > monster_y and y + 40 <
+                      monster_y + 50)):
+                    points += 1
+                    del monster_coords1[monster_coords1.index(j)]
+                    k_x = -k_x
+                    k_y = -k_y
+                monster_coords = monster_coords1
+
+        monsters = pygame.sprite.Group()
+        for k in monster_coords:
+            sprite = pygame.sprite.Sprite()
+            x_monster, y_monster, image_monster = k
+            if image_monster == "knight":
+                sprite.image = load_image("Knight.png")
+            elif image_monster == "troll":
+                sprite.image = load_image("troll.png")
+            sprite.rect = sprite.image.get_rect()
+            sprite.rect.x = x_monster
+            sprite.rect.y = y_monster
+            sprite.add(monsters)
+        return monsters, monster_coords, points, k_x, k_y
+
 
 pygame.init()
 size = w, h = 320, 570
@@ -94,18 +199,20 @@ board = Board(6, 9)
 board.set_view(10, 5, 50)
 screen.fill((71, 37, 0))
 
+points = 0
+
 pygame.draw.rect(screen, (124, 252, 0), (10, 5, w-20, h-60), 0)
 pygame.draw.rect(screen, (87, 145, 12), (10, 355, w-20, h-110), 0)
 
-music = False
+#music = False
 # этот флаг отвечает за музыку.
 # Если хотите другую смените флаг на True
-if music:
-    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
-    pygame.mixer.music.play(-1)
-else:
-    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
-    pygame.mixer.music.play(-1)
+#if music:
+#    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
+#    pygame.mixer.music.play(-1)
+#elif not music:
+#    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
+#    pygame.mixer.music.play(-1)
 
 castle = pygame.sprite.Group()
 castle1 = pygame.sprite.Sprite()
@@ -176,6 +283,7 @@ flag_inboard = True
 new_monster_draw = False
 gameover_flag = False
 you_can_push = False
+have_nlevel = False
 
 n = 1
 pygame.time.set_timer(move, 10)
@@ -229,36 +337,8 @@ while running:
                         y = y + 1
                         k_y = 1
 
-                    monster_coords1 = monster_coords
-                    for j in monster_coords:
-                        monster_x, monster_y, image = j
-                        if ((y > monster_y and y < monster_y + 50) or
-                           (y + 40 < monster_y and y + 40 > monster_y + 50)):
-                            if ((x > monster_x and x < monster_x + 50) and
-                               (y > monster_y and y < monster_y + 50)):
-                                del monster_coords1[monster_coords1.index(j)]
-                                k_x = -k_x
-                                k_y = -k_y
-                            elif ((x + 40 > monster_x and x + 40 <
-                                  monster_x + 50) and
-                                  (y > monster_y and y < monster_y + 50)):
-                                del monster_coords1[monster_coords1.index(j)]
-                                k_x = -k_x
-                                k_y = -k_y
-                            elif ((x + 40 > monster_x and x + 40 <
-                                  monster_x + 50) and
-                                  (y + 40 > monster_y and y + 40 <
-                                  monster_x + 50)):
-                                del monster_coords1[monster_coords1.index(j)]
-                                k_x = -k_x
-                                k_y = -k_y
-                            elif ((x > monster_x and x < monster_x + 50) and
-                                  (y + 40 > monster_y and y + 40 <
-                                  monster_y + 50)):
-                                del monster_coords1[monster_coords1.index(j)]
-                                k_x = -k_x
-                                k_y = -k_y
-                            monster_coords = monster_coords1
+                    monsters, monster_coords, points, k_x, k_y = monsters_actions.monster_fire_crash(monster_coords, points, k_x, k_y)
+                    
                     x = x + (plus_x * k_x)
                     if int(y) != int(y + (plus_y * k_y)):
                         y = y + (plus_y * k_y)
@@ -279,9 +359,12 @@ while running:
                     fire.rect.x = x
                     fire.rect.y = y
                     fires.draw(screen)
+                    monsters.draw(screen)
 
                     if y <= 420:
                         coords1.append([x, y, k_x, k_y])
+                    else:
+                        have_nlevel = True
                     flag1 = False
                 coords = coords1
                 coords1 = []
@@ -294,62 +377,19 @@ while running:
             if y < 410:
                 fire.rect.y = y
             else:
-                monster_coords1 = monster_coords
-                for i in to_del:
-                    del (monster_coords1[monster_coords1.
-                         index(monster_coords[i])])
-                monster_coords = monster_coords1
-                to_del = []
-                flag_bdown = False
-                fire.rect.y = 4000
-                y = 4000
-                n = 0
-                monsters = pygame.sprite.Group()
-                n1 = len(monster_coords)
-
-                while n != n1 and flag_inboard:  # перемещение монстров вперед
-                    sprite = pygame.sprite.Sprite()
-                    x, y, image = monster_coords[n]
-                    if image == "troll":
-                        sprite.image = load_image("troll.png")
-                    elif image == "knight":
-                        sprite.image = load_image("Knight.png")
-                    sprite.rect = sprite.image.get_rect()
-                    sprite.rect.x = x
-                    y += 50
-                    sprite.rect.y = y
-                    sprite.add(monsters)
-                    if y < 450:
-                        coords_monsters1.append([x, y, image])
-                    else:
-                        if image == "troll":
-                            castle_xp += -1
-                        elif image == "knight":
-                            castle_xp += -5
-                    n += 1
-
-                new_monster_draw = True
-                monster_coords = coords_monsters1
-                coords_monsters1 = []
-                x_coords = []
-                for i in range(3):  # пририсовка нового монстра
-                    image = random.choice(monster_choice)
-                    y = 5
-                    x = random.randrange(10, 310, 50)
-                    sprite = pygame.sprite.Sprite()
-                    if image == "troll":
-                        sprite.image = load_image("troll.png")
-                    elif image == "knight":
-                        sprite.image = load_image("Knight.png")
-                    elif image == "dragon":
-                        sprite.image = load_image("Dragon.png")
-                    sprite.rect = sprite.image.get_rect()
-                    if x not in x_coords:
-                        sprite.rect.x = x
-                    sprite.rect.y = y
-                    sprite.add(monsters)
-                    if x not in x_coords:
-                        monster_coords.append([x, y, image])
+                fire.rect.y = -400
+                if have_nlevel:
+                    monster_coords1 = monster_coords
+                    for i in to_del:
+                        del (monster_coords1[monster_coords1.
+                             index(monster_coords[i])])
+                    monster_coords = monster_coords1
+                    to_del = []
+                    flag_bdown = False
+                    fire.rect.y = 4000
+                    y = 4000
+                    monsters, monster_coords, castle_xp = monsters_actions.new_level(monster_coords, castle_xp)
+                    have_nlevel = False
 
             fires.draw(screen)
 
@@ -365,10 +405,25 @@ while running:
                 gameover_x += 1
             else:
                 you_can_push = True
+            font = pygame.font.Font(None, 24)
+            file_name = os.path.join('Data', 'max_point.txt')
+            max_point = int(open(file_name, "r").read())            
+            if points > max_point:
+                max_point = points
+                file = open(file_name, "w")
+                file.write(str(max_point))
+                file.close()
+            end_text = ["Вы убили {} монстров.".format(points), "Ваш максимальный счет равен {}.".format(max_point)]
             game_over.rect.x = gameover_x
             game_over.rect.y = 0
             game_over.add(game_over_group)
-            game_over_group.draw(screen)
+            game_over_group.draw(screen)            
+            text_y = 405
+            for end in end_text:
+                text = font.render(end, 1, (255, 255, 255))
+                text_x = 35
+                text_y += 20       
+                screen.blit(text, (text_x, text_y))
         if castle_xp > 0:
             font = pygame.font.Font(None, 24)
             text = font.render("{}xp".format(castle_xp), 1, (255, 255, 255))
@@ -379,6 +434,7 @@ while running:
         else:
             gameover_flag = False
         if event.type == pygame.MOUSEBUTTONDOWN and you_can_push:
+            points = 0
             gameover_flag = True
             castle_xp = 10
             monster_coords = []
