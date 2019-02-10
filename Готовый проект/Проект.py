@@ -204,15 +204,15 @@ points = 0
 pygame.draw.rect(screen, (124, 252, 0), (10, 5, w-20, h-60), 0)
 pygame.draw.rect(screen, (87, 145, 12), (10, 355, w-20, h-110), 0)
 
-music = False
+#music = False
 # этот флаг отвечает за музыку.
 # Если хотите другую смените флаг на True
-if music:
-    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
-    pygame.mixer.music.play(-1)
-elif not music:
-    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
-    pygame.mixer.music.play(-1)
+#if music:
+    #pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
+    #pygame.mixer.music.play(-1)
+#elif not music:
+    #pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
+    #pygame.mixer.music.play(-1)
 
 castle = pygame.sprite.Group()
 castle1 = pygame.sprite.Sprite()
@@ -229,11 +229,11 @@ fireman = pygame.sprite.Group()
 fireman1 = pygame.sprite.Sprite()
 fireman1.image = load_image("witcher.png")
 fireman1.rect = fireman1.image.get_rect()
-fireman.add(fireman1)
 x = 135
 y = 510
 fireman1.rect.x = x
 fireman1.rect.y = y
+fireman.add(fireman1)
 
 fires = pygame.sprite.Group()
 fire = pygame.sprite.Sprite()
@@ -245,6 +245,8 @@ coords_monsters1 = []
 x_coords = []
 monster_choice = ["troll", "knight", "troll", "troll",
                   "knight", "troll", "troll", "troll", "troll", "knight"]
+
+
 for i in range(3):
     x = random.randrange(10, 310, 50)
     if x not in x_coords:
@@ -284,12 +286,19 @@ new_monster_draw = False
 gameover_flag = False
 you_can_push = False
 have_nlevel = False
+pause_flag = False
 
 n = 1
 pygame.time.set_timer(move, 10)
 running = True
 k_x = 1
 k_y = -1
+
+pause = pygame.sprite.Group()
+pause1 = pygame.sprite.Sprite()
+pause1.image = load_image("pause.png")
+pause1.rect = pause1.image.get_rect()
+pause.add(pause1)
 
 board.render()
 
@@ -300,7 +309,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if gameover_flag:
+        if event.type == pygame.KEYDOWN:
+            pause_flag = True
+        if gameover_flag and not pause_flag:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 flag_bdown = True
                 if event.pos[0] >= 150:
@@ -390,6 +401,7 @@ while running:
                     y = 4000
                     monsters, monster_coords, castle_xp = monsters_actions.new_level(monster_coords, castle_xp)
                     have_nlevel = False
+            
 
             fires.draw(screen)
 
@@ -459,6 +471,39 @@ while running:
                 sprite.rect.y = y
                 sprite.add(monsters)
             you_can_push = False
+        if pause_flag:
+            pause.draw(screen)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                print(x, y)
+                if x >= 77 and x <= 255 and y >= 304 and y <= 368:
+                    pause_flag = False
+                elif x >= 75 and x <= 253 and y >= 180 and y <= 242:
+                    points = 0
+                    gameover_flag = True
+                    castle_xp = 10
+                    monster_coords = []
+                    coords_monsters1 = []
+                    x_coords = []
+                    monster_choice = ["troll", "knight", "troll", "troll",
+                                      "knight", "troll", "troll", "troll",
+                                      "troll", "knight"]
+                    for i in range(3):
+                        x = random.randrange(10, 310, 50)
+                        if x not in x_coords:
+                            monster_coords.append([x, 5, "troll"])
+                        x_coords.append(x)
+        
+                    monsters = pygame.sprite.Group()
+                    for i in monster_coords:
+                        sprite = pygame.sprite.Sprite()
+                        sprite.image = load_image("troll.png")
+                        x, y, image = i
+                        sprite.rect = sprite.image.get_rect()
+                        sprite.rect.x = x
+                        sprite.rect.y = y
+                        sprite.add(monsters)
+                    pause_flag = False
     clock.tick(50)
     pygame.display.flip()
 pygame.quit()
