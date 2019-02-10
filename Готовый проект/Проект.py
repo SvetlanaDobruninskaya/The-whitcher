@@ -204,15 +204,15 @@ points = 0
 pygame.draw.rect(screen, (124, 252, 0), (10, 5, w-20, h-60), 0)
 pygame.draw.rect(screen, (87, 145, 12), (10, 355, w-20, h-110), 0)
 
-#music = False
+music = False
 # этот флаг отвечает за музыку.
 # Если хотите другую смените флаг на True
-#if music:
-#    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
-#    pygame.mixer.music.play(-1)
-#elif not music:
-#    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
-#    pygame.mixer.music.play(-1)
+if music:
+    pygame.mixer.music.load(os.path.join('Data', 'Night_Witches.mp3'))
+    pygame.mixer.music.play(-1)
+elif not music:
+    pygame.mixer.music.load(os.path.join('Data', 'fon_music.mp3'))
+    pygame.mixer.music.play(-1)
 
 castle = pygame.sprite.Group()
 castle1 = pygame.sprite.Sprite()
